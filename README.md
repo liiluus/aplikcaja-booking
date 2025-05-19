@@ -95,9 +95,10 @@ Aby uruchomić projekt lokalnie, wykonaj następujące kroki:
           storageBucket: "TWOJ_STORAGE_BUCKET",
           messagingSenderId: "TWOJ_MESSAGING_SENDER_ID",
           appId: "TWOJ_APP_ID"
-          // measurementId: "TWOJ_MEASUREMENT_ID" // Opcjonalnie
         };
         ```
+
+
     *   **Ważne - Indeksy Firestore:** Aplikacja wykorzystuje zapytania do Firestore, które wymagają utworzenia **indeksów złożonych** (szczególnie dla filtrowania i sortowania rezerwacji). Jeśli podczas działania aplikacji (np. na stronie "Moje Rezerwacje" przy zmianie filtrów) w konsoli przeglądarki pojawi się błąd `FirebaseError: The query requires an index...` wraz z linkiem, należy kliknąć ten link. Przeniesie on do konsoli Firebase, gdzie można automatycznie utworzyć wymagany indeks. Tworzenie indeksu może zająć kilka minut. Należy utworzyć wszystkie indeksy, o które poprosi Firebase podczas testowania różnych kombinacji filtrów i sortowania.
 
 4.  **Uruchomienie Aplikacji Deweloperskiej:**
@@ -121,3 +122,10 @@ Aby przetestować funkcjonalności administratora:
 *   Interfejs użytkownika jest responsywny i stara się zapewnić dobre doświadczenia użytkownika.
 
 ---
+## Zdjęcia z okna Firebase
+
+![Strona główna aplikacji](./zdjecia/cloudfirestoredatabase.png)
+
+![Lista rezerwacji użytkownika](./zdjecia/firebase_meetings.png)
+
+![Kalendarz rezerwacji](./zdjecia/firebase_users.png)
