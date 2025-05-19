@@ -1,70 +1,123 @@
-# Getting Started with Create React App
+# System Zarządzania Rezerwacjami Spotkań
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Autor
 
-## Available Scripts
+Paulina Pierchała 137817
 
-In the project directory, you can run:
+## Cel Projektu
 
-### `npm start`
+Celem projektu było stworzenie aplikacji webowej do zarządzania rezerwacjami spotkań, zrealizowanej w technologii React 18+. Aplikacja umożliwia użytkownikom rezerwowanie terminów spotkań, ich edycję i anulowanie. Dostępny jest również panel administratora z rozszerzonymi uprawnieniami do zarządzania wszystkimi rezerwacjami. Projekt został wykonany w ramach zaliczenia przedmiotu [Nazwa Przedmiotu/Kursu - jeśli dotyczy].
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Główne Funkcjonalności
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Aplikacja oferuje następujące funkcjonalności:
 
-### `npm test`
+### Dla Użytkownika Standardowego:
+*   **Rejestracja:** Tworzenie nowego konta użytkownika (imię, nazwisko, email, hasło).
+*   **Logowanie/Wylogowywanie:** Bezpieczne uwierzytelnianie użytkowników.
+*   **Dodawanie Rezerwacji:** Możliwość tworzenia nowych rezerwacji spotkań z określeniem:
+    *   Tytułu spotkania
+    *   Opisu
+    *   Daty
+    *   Godziny rozpoczęcia i zakończenia
+    *   Listy uczestników (adresy email)
+*   **Przeglądanie Własnych Rezerwacji:**
+    *   Widok listy rezerwacji (w formie kart) z możliwością filtrowania (po statusie, zakresie dat) i sortowania (po dacie spotkania, dacie utworzenia).
+    *   Widok kalendarza (FullCalendar) prezentujący rezerwacje użytkownika.
+*   **Edycja Rezerwacji:** Modyfikacja szczegółów istniejących, własnych rezerwacji.
+*   **Anulowanie Rezerwacji:** Zmiana statusu własnej rezerwacji na "anulowana".
+*   **Interaktywne Powiadomienia:** Komunikaty o sukcesie lub błędzie operacji (Snackbar).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Dla Administratora:
+*   **Dostęp do Panelu Administratora:** Specjalny widok dostępny po zalogowaniu na konto z rolą "admin".
+*   **Przeglądanie Wszystkich Rezerwacji:** Dostęp do listy wszystkich rezerwacji w systemie, stworzonych przez dowolnego użytkownika.
+*   **Zarządzanie Wszystkimi Rezerwacjami:** Możliwość edycji i anulowania każdej rezerwacji w systemie.
+*   (Opcjonalnie, jeśli zaimplementowano) Podstawowe filtrowanie i sortowanie w panelu admina.
 
-### `npm run build`
+## Użyte Technologie
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+*   **Frontend:**
+    *   React 18+ (z wykorzystaniem Hooków)
+    *   React Router DOM v6 (routing po stronie klienta)
+    *   Material UI (MUI) v5 (biblioteka komponentów UI)
+    *   React Hook Form (zarządzanie formularzami i walidacja)
+    *   FullCalendar (@fullcalendar/react, @fullcalendar/daygrid, @fullcalendar/timegrid, @fullcalendar/interaction)
+    *   Context API (do zarządzania stanem globalnym: `AuthContext`, `SnackbarContext`)
+    *   `date-fns` (opcjonalnie, jeśli używane z date pickerami lub do formatowania dat)
+*   **Backend (Backend as a Service):**
+    *   Firebase Authentication (uwierzytelnianie użytkowników)
+    *   Firebase Firestore (baza danych NoSQL)
+*   **Narzędzia Deweloperskie:**
+    *   Node.js & npm
+    *   Git & [GitHub/GitLab/Bitbucket - Twoja platforma] (kontrola wersji)
+    *   ESLint (linter kodu)
+    *   Create React App (szkielet projektu)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Struktura Projektu (Główne Foldery w `src/`)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+*   `components/`: Zawiera reużywalne komponenty, np. `ProtectedRoute.jsx` do ochrony ścieżek.
+*   `contexts/`: Przechowuje konteksty Reacta używane do zarządzania stanem globalnym:
+    *   `AuthContext.jsx`: Zarządza stanem uwierzytelnienia użytkownika i jego danymi.
+    *   `SnackbarContext.jsx`: Obsługuje globalny system powiadomień.
+*   `layouts/`: Komponenty definiujące główną strukturę/układ aplikacji, np. `Navbar.jsx`.
+*   `pages/`: Komponenty reprezentujące poszczególne strony/widoki aplikacji, np. `HomePage.jsx`, `LoginPage.jsx`, `MyBookingsPage.jsx`, `AdminDashboardPage.jsx`, `CalendarPage.jsx`, `NewBookingPage.jsx`, `EditBookingPage.jsx`.
+*   `firebase.js`: Plik konfiguracyjny i inicjalizacyjny dla Firebase SDK.
 
-### `npm run eject`
+## Instalacja i Uruchomienie
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Aby uruchomić projekt lokalnie, wykonaj następujące kroki:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1.  **Klonowanie Repozytorium:**
+    ```bash
+    git clone [https://github.com/liiluus/aplikcaja-booking.git]
+    cd [aplikcaja-booking]
+    ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2.  **Instalacja Zależności:**
+    Upewnij się, że masz zainstalowany Node.js (zalecana wersja LTS) oraz npm.
+    ```bash
+    npm install
+    ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+3.  **Konfiguracja Firebase:**
+    *   Przejdź do [Firebase Console](https://console.firebase.google.com/) i utwórz nowy projekt (lub użyj istniejącego).
+    *   W swoim projekcie Firebase włącz następujące usługi:
+        *   **Authentication:** W panelu Authentication przejdź do zakładki "Sign-in method" i włącz dostawcę "Email/Password".
+        *   **Firestore Database:** Utwórz bazę danych. Na potrzeby deweloperskie możesz zacząć w **trybie testowym**, który pozwala na odczyt/zapis przez 30 dni. Wybierz odpowiedni region serwera.
+    *   W ustawieniach projektu Firebase (`Project settings` -> `General`), w sekcji "Your apps", kliknij ikonę `</>` (Web), aby dodać nową aplikację internetową (jeśli jeszcze jej nie masz).
+    *   Po zarejestrowaniu aplikacji, skopiuj obiekt konfiguracyjny `firebaseConfig`.
+    *   W pliku `src/firebase.js` w sklonowanym projekcie, zastąp placeholder swoimi danymi konfiguracyjnymi:
+        ```javascript
+        const firebaseConfig = {
+          apiKey: "TWOJ_API_KEY",
+          authDomain: "TWOJ_AUTH_DOMAIN",
+          projectId: "TWOJ_PROJECT_ID",
+          storageBucket: "TWOJ_STORAGE_BUCKET",
+          messagingSenderId: "TWOJ_MESSAGING_SENDER_ID",
+          appId: "TWOJ_APP_ID"
+          // measurementId: "TWOJ_MEASUREMENT_ID" // Opcjonalnie
+        };
+        ```
+    *   **Ważne - Indeksy Firestore:** Aplikacja wykorzystuje zapytania do Firestore, które wymagają utworzenia **indeksów złożonych** (szczególnie dla filtrowania i sortowania rezerwacji). Jeśli podczas działania aplikacji (np. na stronie "Moje Rezerwacje" przy zmianie filtrów) w konsoli przeglądarki pojawi się błąd `FirebaseError: The query requires an index...` wraz z linkiem, należy kliknąć ten link. Przeniesie on do konsoli Firebase, gdzie można automatycznie utworzyć wymagany indeks. Tworzenie indeksu może zająć kilka minut. Należy utworzyć wszystkie indeksy, o które poprosi Firebase podczas testowania różnych kombinacji filtrów i sortowania.
 
-## Learn More 2222
+4.  **Uruchomienie Aplikacji Deweloperskiej:**
+    ```bash
+    npm start
+    ```
+    Aplikacja zostanie uruchomiona i będzie dostępna w przeglądarce pod adresem `http://localhost:3000`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Użytkownik Administrator (Konfiguracja)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Aby przetestować funkcjonalności administratora:
+1.  Zarejestruj standardowe konto użytkownika poprzez formularz rejestracji w aplikacji.
+2.  Przejdź do konsoli Firebase -> Firestore Database -> kolekcja `users`.
+3.  Odszukaj dokument nowo zarejestrowanego użytkownika (ID dokumentu to UID użytkownika z sekcji Authentication).
+4.  Ręcznie zmień wartość pola `role` w tym dokumencie z `"user"` na `"admin"`.
+5.  Po ponownym zalogowaniu na to konto, użytkownik będzie miał uprawnienia administratora (np. dostęp do "/admin-dashboard" i link w Navbarze).
 
-### Code Splitting
+## Dodatkowe Informacje
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+*   Aplikacja została zaprojektowana z myślą o modularności i czytelności kodu.
+*   Interfejs użytkownika jest responsywny i stara się zapewnić dobre doświadczenia użytkownika.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---

@@ -7,7 +7,6 @@ import { db } from '../firebase';
 import { doc, getDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { useSnackbar } from '../contexts/SnackbarContext';
 
-// Komponenty MUI
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -45,7 +44,6 @@ function EditBookingPage() {
     }
     if (!currentUser) {
       console.log('EditBookingPage - fetchBookingData: Brak currentUser');
-      // ProtectedRoute powinien to obsłużyć, ale dla pewności
       setPageError('Musisz być zalogowany, aby edytować rezerwację.');
       setLoadingBooking(false);
       return;
@@ -101,7 +99,7 @@ function EditBookingPage() {
       setLoadingBooking(false);
       console.log('EditBookingPage - fetchBookingData: Zakończono, loadingBooking:', false);
     }
-  }, [bookingId, currentUser, isAdmin, setValue, setPageError, setLoadingBooking, setInitialData]); // Dodano wszystkie funkcje ustawiające stan
+  }, [bookingId, currentUser, isAdmin, setValue, setPageError, setLoadingBooking, setInitialData]);
 
   useEffect(() => {
     fetchBookingData();
@@ -109,7 +107,6 @@ function EditBookingPage() {
 
   const onSubmit = async (data) => {
     console.log('EditBookingPage - onSubmit: Dane formularza:', data);
-    // setPageError(''); // Resetuj błędy strony przed próbą zapisu, jeśli chcesz
     if (!currentUser) {
       showSnackbar('Musisz być zalogowany, aby edytować rezerwację.', 'error');
       return;
@@ -173,16 +170,14 @@ function EditBookingPage() {
     );
   }
 
-  // Jeśli initialData jest null PO załadowaniu, a nie ma błędu z fetch, to prawdopodobnie brak uprawnień
-  // lub rezerwacja nie istnieje. pageError powinien być już ustawiony przez fetchBookingData.
   if (!initialData) {
     console.log('EditBookingPage - Render: Brak initialData, wyświetlam błąd lub ostrzeżenie.');
     return (
         <Container maxWidth="sm" sx={{ mt: 4 }}>
-             <Alert severity={pageError ? "error" : "warning"}>
+            <Alert severity={pageError ? "error" : "warning"}>
                 {pageError || 'Nie można załadować danych rezerwacji lub nie masz uprawnień.'}
-             </Alert>
-             <Button component={RouterLink} to={isAdmin ? "/admin-dashboard" : "/my-bookings"} startIcon={<ArrowBackIcon />} sx={{mt: 2}}>
+            </Alert>
+            <Button component={RouterLink} to={isAdmin ? "/admin-dashboard" : "/my-bookings"} startIcon={<ArrowBackIcon />} sx={{mt: 2}}>
                 Wróć
             </Button>
         </Container>
@@ -201,10 +196,8 @@ function EditBookingPage() {
         </Typography>
       </Box>
 
-      {/* Błędy walidacji pól są obsługiwane przez helperText, ogólne błędy operacji przez Snackbar */}
-      {/* Można dodać Alert dla pageError, jeśli chcesz wyświetlić błąd ładowania danych nad formularzem */}
       {pageError && !Object.keys(errors).length && (
-         <Alert severity="error" sx={{ mb: 2 }}>{pageError}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }}>{pageError}</Alert>
       )}
 
 

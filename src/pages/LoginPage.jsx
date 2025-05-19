@@ -5,7 +5,6 @@ import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import { useAuth } from '../contexts/AuthContext';
 
-// Komponenty MUI
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -15,10 +14,7 @@ import Box from '@mui/material/Box';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import CircularProgress from '@mui/material/CircularProgress'; // Dodano
-// Usunięto import Alert
-
-// Import Firebase
+import CircularProgress from '@mui/material/CircularProgress'; 
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -38,17 +34,13 @@ function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { showSnackbar } = useSnackbar();
-  // Usunięto stan firebaseError
 
   const { isUserLoggedIn, loading: authLoading } = useAuth();
   const from = location.state?.from?.pathname || '/';
 
-  // Wyświetl komunikat o sukcesie z rejestracji, jeśli istnieje
   useEffect(() => {
     if (location.state?.message) {
       showSnackbar(location.state.message, 'success');
-      // Czyść stan w historii, aby komunikat nie pojawiał się ponownie po odświeżeniu
-      // lub przejściu wstecz/dalej i powrocie.
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state, showSnackbar, navigate, location.pathname]);
@@ -104,7 +96,6 @@ function LoginPage() {
         <Typography component="h1" variant="h5">
           Zaloguj się
         </Typography>
-        {/* Alerty zostały usunięte, błędy i sukcesy obsługuje Snackbar */}
         <Box
           component="form"
           noValidate

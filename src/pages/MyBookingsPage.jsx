@@ -11,21 +11,22 @@ import {
   doc,
   updateDoc,
   serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore';
-import { useSnackbar } from '../contexts/SnackbarContext';
+import { useSnackbar } from '../contexts/SnackbarContext'; 
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 
-// Komponenty MUI
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card'; 
-import CardContent from '@mui/material/CardContent'; 
-import CardActions from '@mui/material/CardActions'; 
-import Divider from '@mui/material/Divider'; 
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Divider from '@mui/material/Divider';
+import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
-import Alert from '@mui/material/Alert';
+import Alert from '@mui/material/Alert'; 
 import Button from '@mui/material/Button';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -38,20 +39,21 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
 
 function MyBookingsPage() {
   const { currentUser } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [pageError, setPageError] = useState(''); 
   const location = useLocation();
-  const [successMessage, setSuccessMessage] = useState(
-    location.state?.message || ''
-  );
+  const { showSnackbar } = useSnackbar(); 
+  const navigate = useNavigate();
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date_asc');
+  const [dateFromFilter, setDateFromFilter] = useState('');
+  const [dateToFilter, setDateToFilter] = useState('');
 
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState(null);
@@ -63,17 +65,46 @@ function MyBookingsPage() {
       return;
     }
     setLoading(true);
-    setError('');
+    setPageError('');
     try {
       const bookingsCollectionRef = collection(db, 'meetings');
-      let q = query(bookingsCollectionRef, where('createdBy', '==', currentUser.uid));
+      let q = query(
+        bookingsCollectionRef,
+        where('createdBy', '==', currentUser.uid)
+      );
 
       if (statusFilter !== 'all') {
         q = query(q, where('status', '==', statusFilter));
       }
 
+      if (dateFromFilter) {
+        try {
+          const fromDateObj = new Date(dateFromFilter + "T00:00:00");
+          if (isNaN(fromDateObj.valueOf())) throw new Error("Nieprawidłowa data 'od'");
+          q = query(q, where('date', '>=', Timestamp.fromDate(fromDateObj)));
+        } catch (e) {
+          setPageError("Nieprawidłowy format daty 'od'.");
+          setBookings([]); setLoading(false); return;
+        }
+      }
+
+      if (dateToFilter) {
+        try {
+          const dateToObj = new Date(dateToFilter + "T23:59:59.999");
+          if (isNaN(dateToObj.valueOf())) throw new Error("Nieprawidłowa data 'do'");
+          q = query(q, where('date', '<=', Timestamp.fromDate(dateToObj)));
+        } catch (e) {
+          setPageError("Nieprawidłowy format daty 'do'.");
+          setBookings([]); setLoading(false); return;
+        }
+      }
+
       if (sortBy === 'date_desc') {
         q = query(q, orderBy('date', 'desc'), orderBy('startTime', 'desc'));
+      } else if (sortBy === 'createdAt_asc') {
+        q = query(q, orderBy('createdAt', 'asc'));
+      } else if (sortBy === 'createdAt_desc') {
+        q = query(q, orderBy('createdAt', 'desc'));
       } else {
         q = query(q, orderBy('date', 'asc'), orderBy('startTime', 'asc'));
       }
@@ -87,16 +118,17 @@ function MyBookingsPage() {
     } catch (err) {
       console.error("Błąd podczas pobierania rezerwacji:", err);
       if (err.code === 'failed-precondition') {
-        setError(
+        setPageError(
           'Zapytanie wymaga utworzenia dodatkowego indeksu w Firestore. Sprawdź konsolę przeglądarki (szukaj linku do utworzenia indeksu) lub zmień opcje filtrowania/sortowania.'
         );
       } else {
-        setError('Nie udało się załadować rezerwacji. Spróbuj ponownie później.');
+        setPageError('Nie udało się załadować rezerwacji. Spróbuj ponownie później.');
       }
+      setBookings([]);
     } finally {
       setLoading(false);
     }
-  }, [currentUser, statusFilter, sortBy]);
+  }, [currentUser, statusFilter, sortBy, dateFromFilter, dateToFilter]);
 
   useEffect(() => {
     if (currentUser) {
@@ -104,13 +136,12 @@ function MyBookingsPage() {
     } else {
       setLoading(false);
     }
-
+    
     if (location.state?.message) {
-      const timer = setTimeout(() => setSuccessMessage(''), 5000);
-      window.history.replaceState({}, document.title);
-      return () => clearTimeout(timer);
+      showSnackbar(location.state.message, 'success');
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [currentUser, fetchBookings, location.state?.message]);
+  }, [currentUser, fetchBookings, location.state, showSnackbar, navigate, location.pathname]);
 
   const handleOpenCancelDialog = (booking) => {
     setBookingToCancel(booking);
@@ -123,30 +154,47 @@ function MyBookingsPage() {
   };
 
   const handleConfirmCancelBooking = async () => {
-    if (!bookingToCancel) return;
+    console.log('--- handleConfirmCancelBooking URUCHOMIONA ---');
+    console.log('bookingToCancel:', bookingToCancel); 
+
+    if (!bookingToCancel) {
+      console.log('handleConfirmCancelBooking: bookingToCancel jest null, przerywam.');
+      showSnackbar('Błąd: Brak wybranej rezerwacji do anulowania.', 'error');
+      setIsCanceling(false);
+      handleCloseCancelDialog();
+      return;
+    }
     setIsCanceling(true);
-    setError('');
     try {
       const bookingRef = doc(db, 'meetings', bookingToCancel.id);
+      console.log('handleConfirmCancelBooking: Próba aktualizacji dokumentu:', bookingToCancel.id);
       await updateDoc(bookingRef, {
         status: 'canceled',
         updatedAt: serverTimestamp(),
       });
-      setSuccessMessage('Rezerwacja została pomyślnie anulowana.');
+      console.log('handleConfirmCancelBooking: Rezerwacja anulowana w Firestore:', bookingToCancel.id);
+      showSnackbar('Rezerwacja została pomyślnie anulowana.', 'success');
       fetchBookings();
     } catch (err) {
-      console.error('Błąd podczas anulowania rezerwacji:', err);
-      setError('Nie udało się anulować rezerwacji. Spróbuj ponownie.');
+      console.error('handleConfirmCancelBooking: Błąd podczas anulowania rezerwacji:', err);
+      showSnackbar('Nie udało się anulować rezerwacji. Spróbuj ponownie.', 'error');
     } finally {
       setIsCanceling(false);
       handleCloseCancelDialog();
-      setTimeout(() => setSuccessMessage(''), 5000);
+      console.log('handleConfirmCancelBooking: Zakończono (finally).');
     }
   };
 
-  if (loading && bookings.length === 0) {
+  const handleResetFilters = () => {
+    setStatusFilter('all');
+    setSortBy('date_asc');
+    setDateFromFilter('');
+    setDateToFilter('');
+  };
+
+  if (loading && bookings.length === 0 && !pageError) {
     return (
-      <Container maxWidth="lg"> 
+      <Container maxWidth="lg">
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
         </Box>
@@ -156,38 +204,25 @@ function MyBookingsPage() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 3,
-          flexWrap: 'wrap',
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
         <Typography variant="h4" component="h1" sx={{ mb: { xs: 2, sm: 0 } }}>
           Moje Rezerwacje
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          component={RouterLink}
-          to="/new-booking"
-        >
+        <Button variant="contained" color="primary" component={RouterLink} to="/new-booking">
           Dodaj Rezerwację
         </Button>
       </Box>
 
       <Paper elevation={1} sx={{ p: 2, mb: 3, mt: 2 }}>
+        <Typography variant="h6" gutterBottom>Filtry i Sortowanie</Typography>
         <Grid container spacing={2} alignItems="flex-end">
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={2.5}>
             <FormControl fullWidth size="small">
-              <InputLabel id="status-filter-label">Filtruj po statusie</InputLabel>
+              <InputLabel id="status-filter-label">Status</InputLabel>
               <Select
                 labelId="status-filter-label"
-                id="status-filter"
                 value={statusFilter}
-                label="Filtruj po statusie"
+                label="Status"
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <MenuItem value="all">Wszystkie</MenuItem>
@@ -196,42 +231,61 @@ function MyBookingsPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={2.5}>
+            <TextField
+              label="Data od"
+              type="date"
+              fullWidth
+              size="small"
+              value={dateFromFilter}
+              onChange={(e) => setDateFromFilter(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={2.5}>
+            <TextField
+              label="Data do"
+              type="date"
+              fullWidth
+              size="small"
+              value={dateToFilter}
+              onChange={(e) => setDateToFilter(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel id="sort-by-label">Sortuj według</InputLabel>
               <Select
                 labelId="sort-by-label"
-                id="sort-by"
                 value={sortBy}
                 label="Sortuj według"
                 onChange={(e) => setSortBy(e.target.value)}
               >
-                <MenuItem value="date_asc">Data (rosnąco)</MenuItem>
-                <MenuItem value="date_desc">Data (malejąco)</MenuItem>
+                <MenuItem value="date_asc">Data spotkania (rosnąco)</MenuItem>
+                <MenuItem value="date_desc">Data spotkania (malejąco)</MenuItem>
+                <MenuItem value="createdAt_asc">Data utworzenia (rosnąco)</MenuItem>
+                <MenuItem value="createdAt_desc">Data utworzenia (malejąco)</MenuItem>
               </Select>
             </FormControl>
+          </Grid>
+          <Grid item xs={12} md={1.5} sx={{ textAlign: {xs: 'left', md: 'right'} }}>
+            <Button onClick={handleResetFilters} variant="outlined" size="medium">
+              Resetuj
+            </Button>
           </Grid>
         </Grid>
       </Paper>
 
-      {successMessage && (
-        <Alert
-          severity="success"
-          sx={{ mb: 2 }}
-          onClose={() => setSuccessMessage('')}
-        >
-          {successMessage}
-        </Alert>
-      )}
-      {error && (
+      {pageError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {pageError}
         </Alert>
       )}
 
-      {!loading && bookings.length === 0 && !error && (
+      {!loading && bookings.length === 0 && !pageError && (
         <Typography variant="subtitle1" sx={{ textAlign: 'center', mt: 5 }}>
-          Nie masz jeszcze żadnych zaplanowanych rezerwacji.
+          Nie znaleziono rezerwacji pasujących do kryteriów lub nie masz jeszcze żadnych rezerwacji.
         </Typography>
       )}
 
@@ -276,6 +330,11 @@ function MyBookingsPage() {
                   {booking.status === 'canceled' && (
                     <Typography variant="subtitle2" color="error" sx={{ fontWeight: 'bold', mt: 1.5 }}>
                       STATUS: ANULOWANE
+                    </Typography>
+                  )}
+                  {booking.status === 'scheduled' && (
+                    <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 'bold', mt: 1.5 }}>
+                      STATUS: ZAPLANOWANE
                     </Typography>
                   )}
                 </CardContent>

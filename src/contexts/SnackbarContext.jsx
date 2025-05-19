@@ -12,8 +12,7 @@ export function useSnackbar() {
 export function SnackbarProvider({ children }) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [severity, setSeverity] = useState('success'); // 'success', 'error', 'warning', 'info'
-
+  const [severity, setSeverity] = useState('success'); 
   const showSnackbar = useCallback((msg, sev = 'success') => {
     setMessage(msg);
     setSeverity(sev);
@@ -34,9 +33,9 @@ export function SnackbarProvider({ children }) {
       {children}
       <Snackbar
         open={open}
-        autoHideDuration={6000} // Czas wyświetlania w ms
+        autoHideDuration={6000} 
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // Pozycja
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} 
       >
         <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }} variant="filled">
           {message}

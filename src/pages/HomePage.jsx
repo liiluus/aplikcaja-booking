@@ -6,17 +6,12 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
-// Importuj useAuth
+
 import { useAuth } from '../contexts/AuthContext';
 
 function HomePage() {
-  // Pobierz informacje z AuthContext
   const { isUserLoggedIn, userData, loading } = useAuth();
 
-  // Jeśli stan autentykacji jest jeszcze ładowany, możesz pokazać wskaźnik ładowania
-  // lub prosty komunikat, aby uniknąć migotania.
-  // W AuthProvider mamy już {!loading && children}, więc tutaj może to nie być konieczne,
-  // ale dla pewności można dodać.
   if (loading) {
     return (
       <Container maxWidth="md">
@@ -46,16 +41,16 @@ function HomePage() {
         </Typography>
 
         {isUserLoggedIn ? (
-          // Treść dla zalogowanego użytkownika
+          
           <Box sx={{ marginTop: 4 }}>
-            {userData && ( // Sprawdź, czy userData jest dostępne
+            {userData && ( 
               <Typography variant="h6" gutterBottom>
                 Cieszymy się, że jesteś z nami, {userData.firstName}!
               </Typography>
             )}
             <Button
               component={RouterLink}
-              to="/my-bookings" // Lub np. do kalendarza
+              to="/my-bookings" 
               variant="contained"
               color="primary"
               size="large"
@@ -63,10 +58,9 @@ function HomePage() {
             >
               Przejdź do Moich Rezerwacji
             </Button>
-            {/* Możesz dodać inne przyciski akcji dla zalogowanego użytkownika */}
+            
           </Box>
         ) : (
-          // Treść dla niezalogowanego użytkownika (tak jak było wcześniej)
           <Box sx={{ marginTop: 4 }}>
             <Button
               component={RouterLink}

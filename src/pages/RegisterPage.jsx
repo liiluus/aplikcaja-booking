@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useSnackbar } from '../contexts/SnackbarContext';
 
-// Komponenty MUI
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -14,10 +13,9 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import CircularProgress from '@mui/material/CircularProgress'; // POPRAWIONY IMPORT
+import CircularProgress from '@mui/material/CircularProgress'; 
 
-// Import Firebase - ZAKŁADAM, ŻE firebase.js JEST W src/firebase.js
-import { auth, db } from '../firebase'; // POPRAWIONA ŚCIEŻKA
+import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from "firebase/firestore";
 

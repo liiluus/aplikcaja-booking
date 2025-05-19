@@ -1,11 +1,10 @@
 // src/layouts/Navbar.jsx
 import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Importuj useAuth
+import { useAuth } from '../contexts/AuthContext'; 
 
-// Komponenty MUI
 import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box'; // Może być potrzebny, jeśli będziesz dodawać więcej elementów
+import Box from '@mui/material/Box'; 
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -17,7 +16,6 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'; // Ikona dla panelu admina
 
 function Navbar() {
-  // Pobierz isAdmin z kontekstu AuthContext
   const { currentUser, userData, logout, loading, isUserLoggedIn, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -63,7 +61,7 @@ function Navbar() {
             component={RouterLink}
             to="/admin-dashboard"
             startIcon={<AdminPanelSettingsIcon />}
-            sx={{ ml: 1 }} // Dodaj margines, jeśli potrzebny
+            sx={{ ml: 1 }} 
           >
             Panel Admina
           </Button>
@@ -77,7 +75,7 @@ function Navbar() {
               component={RouterLink}
               to="/my-bookings"
               startIcon={<ListAltIcon />}
-              sx={{ ml: isAdmin ? 0 : 1 }} // Dodaj margines tylko jeśli nie ma linku admina
+              sx={{ ml: isAdmin ? 0 : 1 }}
             >
               Moje Rezerwacje
             </Button>
@@ -117,7 +115,6 @@ function Navbar() {
           </>
         )}
 
-        {/* Linki dla niezalogowanych użytkowników */}
         {!isUserLoggedIn && (
           <>
             <Button color="inherit" component={RouterLink} to="/login">

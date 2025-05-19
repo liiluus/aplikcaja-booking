@@ -7,7 +7,6 @@ import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { useSnackbar } from '../contexts/SnackbarContext';
 
-// Komponenty MUI
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -15,7 +14,6 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
-// Usunięto import Alert, jeśli nie jest już używany
 
 function NewBookingPage() {
   const {
@@ -37,7 +35,6 @@ function NewBookingPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { showSnackbar } = useSnackbar();
-  // const [formError, setFormError] = useState(''); // Można usunąć, jeśli wszystkie błędy idą przez Snackbar
 
   const onSubmit = async (data) => {
     if (!currentUser) {
@@ -93,7 +90,7 @@ function NewBookingPage() {
       await addDoc(collection(db, 'meetings'), newBookingData);
       showSnackbar('Nowa rezerwacja została pomyślnie dodana!', 'success');
       reset();
-      navigate('/my-bookings'); // Nie przekazujemy już komunikatu przez state
+      navigate('/my-bookings'); 
     } catch (error) {
       console.error('Błąd podczas dodawania rezerwacji: ', error);
       showSnackbar('Nie udało się dodać rezerwacji. Spróbuj ponownie.', 'error');
@@ -106,15 +103,12 @@ function NewBookingPage() {
         Dodaj Nową Rezerwację
       </Typography>
 
-      {/* Alert dla formError został usunięty */}
-
       <Box
         component="form"
         noValidate
         onSubmit={handleSubmit(onSubmit)}
       >
         <Grid container spacing={2}>
-          {/* Pola formularza bez zmian, błędy walidacji pól nadal przez helperText */}
           <Grid item xs={12}>
             <TextField
               label="Tytuł spotkania"

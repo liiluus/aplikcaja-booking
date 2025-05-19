@@ -1,11 +1,10 @@
 // src/pages/AdminDashboardPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../contexts/AuthContext'; // Potrzebne do sprawdzenia roli, choć ProtectedRoute to zrobi
+import { useAuth } from '../contexts/AuthContext'; 
 import { db } from '../firebase';
 import {
   collection,
   query,
-  // where, // Usunięto where('createdBy'...)
   getDocs,
   orderBy,
   doc,
@@ -13,7 +12,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
-// Komponenty MUI (skopiuj potrzebne z MyBookingsPage.jsx)
+
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -24,7 +23,7 @@ import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import { Link as RouterLink } from 'react-router-dom'; // Nie potrzebujemy useLocation tutaj
+import { Link as RouterLink } from 'react-router-dom'; 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -33,39 +32,28 @@ import DialogTitle from '@mui/material/DialogTitle';
 import EditIcon from '@mui/icons-material/Edit';
 import CancelIcon from '@mui/icons-material/Cancel';
 import Grid from '@mui/material/Grid';
-// Filtry i sortowanie można dodać później, na razie uprościmy
-// import Select from '@mui/material/Select';
-// import MenuItem from '@mui/material/MenuItem';
-// import FormControl from '@mui/material/FormControl';
-// import InputLabel from '@mui/material/InputLabel';
 
 function AdminDashboardPage() {
-  const { currentUser, isAdmin } = useAuth(); // Sprawdzamy isAdmin dla pewności
+  const { currentUser, isAdmin } = useAuth();
   const [allBookings, setAllBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // Do komunikatów o sukcesie akcji admina
+  const [successMessage, setSuccessMessage] = useState(''); 
 
-  // Stany dla dialogu anulowania (tak jak w MyBookingsPage)
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState(null);
   const [isCanceling, setIsCanceling] = useState(false);
 
   const fetchAllBookings = useCallback(async () => {
-    // Nie potrzebujemy sprawdzać currentUser tutaj, bo ProtectedRoute to zrobi
-    // ale isAdmin może być przydatne do dodatkowych warunków w przyszłości
     setLoading(true);
     setError('');
     try {
       const bookingsCollectionRef = collection(db, 'meetings');
-      // Zapytanie pobierające WSZYSTKIE rezerwacje, posortowane po dacie
       let q = query(
         bookingsCollectionRef,
-        orderBy('date', 'desc'), // Najnowsze najpierw
+        orderBy('date', 'desc'), 
         orderBy('startTime', 'desc')
       );
-
-      // Tutaj można dodać logikę filtrów i sortowania dla admina, jeśli potrzebne
 
       const querySnapshot = await getDocs(q);
       const bookingsData = [];
@@ -75,7 +63,6 @@ function AdminDashboardPage() {
       setAllBookings(bookingsData);
     } catch (err) {
       console.error("Admin - Błąd podczas pobierania wszystkich rezerwacji:", err);
-      // Sprawdź, czy błąd to brak indeksu (może być potrzebny dla sortowania wszystkich)
       if (err.code === 'failed-precondition') {
         setError('Zapytanie wymaga utworzenia dodatkowego indeksu w Firestore dla sortowania wszystkich rezerwacji. Sprawdź konsolę przeglądarki.');
       } else {
@@ -84,19 +71,17 @@ function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []); // Na razie bez zależności od filtrów admina
+  }, []); 
 
   useEffect(() => {
     fetchAllBookings();
   }, [fetchAllBookings]);
 
-  // Funkcje anulowania i edycji (bardzo podobne do MyBookingsPage)
-  // Różnica: admin może anulować/edytować każdą rezerwację
   const handleOpenCancelDialog = (booking) => {
     setBookingToCancel(booking);
     setOpenCancelDialog(true);
   };
-  const handleCloseCancelDialog = () => { /* ... (jak w MyBookingsPage) ... */ setOpenCancelDialog(false); setBookingToCancel(null);};
+  const handleCloseCancelDialog = () => {setOpenCancelDialog(false); setBookingToCancel(null);};
   const handleConfirmCancelBooking = async () => {
     if (!bookingToCancel) return;
     setIsCanceling(true);
@@ -106,10 +91,10 @@ function AdminDashboardPage() {
       await updateDoc(bookingRef, {
         status: 'canceled',
         updatedAt: serverTimestamp(),
-        lastModifiedByAdmin: currentUser.uid // Opcjonalnie: ślad kto zmodyfikował
+        lastModifiedByAdmin: currentUser.uid
       });
       setSuccessMessage(`Rezerwacja "${bookingToCancel.title}" została pomyślnie anulowana.`);
-      fetchAllBookings(); // Odśwież listę
+      fetchAllBookings();
     } catch (err) {
       console.error('Admin - Błąd podczas anulowania rezerwacji:', err);
       setError('Nie udało się anulować rezerwacji. Spróbuj ponownie.');
@@ -195,7 +180,7 @@ function AdminDashboardPage() {
                       STATUS: ANULOWANE
                     </Typography>
                   )}
-                   {booking.status === 'scheduled' && (
+                  {booking.status === 'scheduled' && (
                     <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 'bold', mt: 1.5 }}>
                       STATUS: ZAPLANOWANE
                     </Typography>
@@ -223,11 +208,7 @@ function AdminDashboardPage() {
                     size="small"
                     startIcon={<EditIcon />}
                     component={RouterLink}
-                    // Admin edytuje przez tę samą stronę, ale strona edycji musi
-                    // pozwolić adminowi na edycję (lub stworzyć osobną stronę edycji dla admina)
-                    // Na razie linkujemy do standardowej strony edycji.
                     to={`/edit-booking/${booking.id}`}
-                    // disabled={booking.status === 'canceled'} // Admin może chcieć edytować nawet anulowane
                     sx={{ ml: 1 }}
                   >
                     Edytuj (Admin)
@@ -238,7 +219,6 @@ function AdminDashboardPage() {
           ))}
         </Grid>
       )}
-      {/* Dialog potwierdzenia anulowania (taki sam jak w MyBookingsPage) */}
       <Dialog open={openCancelDialog} onClose={handleCloseCancelDialog}>
         <DialogTitle>{"Potwierdź anulowanie rezerwacji"}</DialogTitle>
         <DialogContent>
